@@ -23,21 +23,32 @@ function App() {
     loadStudents();
   }, []);
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    if (!name || !email) return;
+ const handleSubmit = async (e) => {
+  e.preventDefault();
 
-    try {
-      setLoading(true);
-      await addStudent({ name, email });
-      setName("");
-      setEmail("");
-      loadStudents();
-      setActiveTab("details");
-    } finally {
-      setLoading(false);
+  if (!name || !email) {
+    alert("Name and Email are required");
+    return;
+  }
+
+  try {
+    setLoading(true);
+    await addStudent({ name, email });
+    setName("");
+    setEmail("");
+    loadStudents();
+    setActiveTab("details");
+  } catch (err) {
+    if (err.response?.status === 409) {
+      alert("Email already exists!");
+    } else {
+      alert("Failed to add student");
     }
-  };
+  } finally {
+    setLoading(false);
+  }
+};
+
 
   return (
     <>
