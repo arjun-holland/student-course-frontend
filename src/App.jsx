@@ -1,7 +1,11 @@
 import { useEffect, useState } from "react";
-import { getAllStudents, addStudent } from "./api/studentApi";
+import {
+  getAllStudents,
+  addStudent,
+  deleteStudent,
+} from "./api/studentApi";
 import "./App.css";
-import "./index.css";   // 👈 THIS IS IMPORTANT
+import "./index.css";
 
 function App() {
   const [students, setStudents] = useState([]);
@@ -10,12 +14,13 @@ function App() {
   const [activeTab, setActiveTab] = useState("details");
   const [loading, setLoading] = useState(false);
 
+  // Load students
   const loadStudents = async () => {
     try {
       const res = await getAllStudents();
       setStudents(res.data || []);
     } catch (err) {
-      console.error(err);
+      console.error("Failed to fetch students", err);
     }
   };
 
@@ -23,32 +28,48 @@ function App() {
     loadStudents();
   }, []);
 
- const handleSubmit = async (e) => {
-  e.preventDefault();
+  // Add student
+  const handleSubmit = async (e) => {
+    e.preventDefault();
 
-  if (!name || !email) {
-    alert("Name and Email are required");
-    return;
-  }
-
-  try {
-    setLoading(true);
-    await addStudent({ name, email });
-    setName("");
-    setEmail("");
-    loadStudents();
-    setActiveTab("details");
-  } catch (err) {
-    if (err.response?.status === 409) {
-      alert("Email already exists!");
-    } else {
-      alert("Failed to add student");
+    if (!name || !email) {
+      alert("Name and Email are required");
+      return;
     }
-  } finally {
-    setLoading(false);
-  }
-};
 
+    try {
+      setLoading(true);
+      await addStudent({ name, email });
+      setName("");
+      setEmail("");
+      loadStudents();
+      setActiveTab("details");
+    } catch (err) {
+      if (err.response?.status === 409) {
+        alert("Email already exists!");
+      } else {
+        alert("Failed to add student");
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Delete student
+  const handleDelete = async (id) => {
+    const confirmDelete = window.confirm(
+      "Are you sure you want to delete this student?"
+    );
+
+    if (!confirmDelete) return;
+
+    try {
+      await deleteStudent(id);
+      loadStudents();
+    } catch (err) {
+      alert("Failed to delete student");
+    }
+  };
 
   return (
     <>
@@ -59,10 +80,17 @@ function App() {
 
       {/* BUTTON BAR */}
       <div className="button-bar">
-        <button className="btn btn-blue" onClick={() => setActiveTab("details")}>
+        <button
+          className={`btn btn-blue ${activeTab === "details" ? "active" : ""}`}
+          onClick={() => setActiveTab("details")}
+        >
           Get Students
         </button>
-        <button className="btn btn-orange" onClick={() => setActiveTab("add")}>
+
+        <button
+          className={`btn btn-orange ${activeTab === "add" ? "active" : ""}`}
+          onClick={() => setActiveTab("add")}
+        >
           Add Student
         </button>
       </div>
@@ -87,7 +115,17 @@ function App() {
                       <span>{s.email}</span>
                     </div>
                   </div>
-                  <div className="student-id">ID: {s.id}</div>
+
+                  <div className="student-actions">
+                    <span className="student-id">ID: {s.id}</span>
+
+                    <button
+                      className="btn btn-yellow"
+                      onClick={() => handleDelete(s.id)}
+                    >
+                      Delete
+                    </button>
+                  </div>
                 </div>
               ))
             )}
@@ -113,7 +151,11 @@ function App() {
               />
 
               <div className="form-actions">
-                <button className="btn btn-orange" type="submit" disabled={loading}>
+                <button
+                  className="btn btn-orange"
+                  type="submit"
+                  disabled={loading}
+                >
                   {loading ? "Saving..." : "Add Student"}
                 </button>
               </div>
