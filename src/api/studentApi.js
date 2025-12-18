@@ -11,3 +11,8 @@ export const getAllStudents = () => {
 export const addStudent = (student) => {
   return axios.post(`${API_BASE_URL}/students`, student);
 };
+
+// 🆕 DELETE student
+export const deleteStudent = (id) => {
+  return axios.delete(`${API_BASE_URL}/students/${id}`);
+};
