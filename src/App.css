@@ -127,3 +127,27 @@ body {
 .form-actions {
   margin-top: 10px;
 }
+
+
+/* STUDENT ACTIONS */
+.student-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+/* DELETE BUTTON */
+.btn-yellow {
+  background: #ffc107;
+  color: #000;
+  border: none;
+  padding: 8px 14px;
+  border-radius: 6px;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.btn-yellow:hover {
+  background: #e0a800;
+}
+
